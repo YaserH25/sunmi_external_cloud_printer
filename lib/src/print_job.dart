@@ -6,11 +6,11 @@ import 'package:sunmi_external_cloud_printer/src/sunmi_external_cloud_printer_ap
 ///
 /// ```dart
 /// final job = PrintJob()
-///   ..setAlignment(PrintAlignment.center)
+///   ..setAlignment(SunmiPrintAlignment.center)
 ///   ..setCharacterSize(2, 2)
 ///   ..appendText('Receipt\n')
 ///   ..setCharacterSize(1, 1)
-///   ..setAlignment(PrintAlignment.left)
+///   ..setAlignment(SunmiPrintAlignment.left)
 ///   ..appendText('Total: 100 SAR\n')
 ///   ..lineFeed(3)
 ///   ..cutPaper();
@@ -27,7 +27,7 @@ final class PrintJob {
   }
 
   /// Sets text alignment.
-  PrintJob setAlignment(PrintAlignment alignment) {
+  PrintJob setAlignment(SunmiPrintAlignment alignment) {
     _commands.add(_SetAlignment(alignment));
     return this;
   }
@@ -66,7 +66,7 @@ final class PrintJob {
   PrintJob printQrCode(
     String data, {
     int size = 6,
-    QrErrorLevel errorLevel = QrErrorLevel.m,
+    SunmiQrErrorLevel errorLevel = SunmiQrErrorLevel.m,
   }) {
     _commands.add(_PrintQrCode(data, size, errorLevel));
     return this;
@@ -95,7 +95,7 @@ final class _InitStyle extends _PrintCommand {
 
 final class _SetAlignment extends _PrintCommand {
   _SetAlignment(this.alignment);
-  final PrintAlignment alignment;
+  final SunmiPrintAlignment alignment;
   @override
   Future<void> execute(SunmiPrintApi api) =>
       api.setAlignment(_toMessage(alignment));
@@ -142,7 +142,7 @@ final class _PrintQrCode extends _PrintCommand {
   _PrintQrCode(this.data, this.size, this.errorLevel);
   final String data;
   final int size;
-  final QrErrorLevel errorLevel;
+  final SunmiQrErrorLevel errorLevel;
   @override
   Future<void> execute(SunmiPrintApi api) =>
       api.printQrCode(data, size, _toErrorLevel(errorLevel));
@@ -152,15 +152,15 @@ final class _PrintQrCode extends _PrintCommand {
 // Enum converters
 // ---------------------------------------------------------------------------
 
-PrintAlignmentMessage _toMessage(PrintAlignment a) => switch (a) {
-  PrintAlignment.left => PrintAlignmentMessage.left,
-  PrintAlignment.center => PrintAlignmentMessage.center,
-  PrintAlignment.right => PrintAlignmentMessage.right,
+PrintAlignmentMessage _toMessage(SunmiPrintAlignment a) => switch (a) {
+  SunmiPrintAlignment.left => PrintAlignmentMessage.left,
+  SunmiPrintAlignment.center => PrintAlignmentMessage.center,
+  SunmiPrintAlignment.right => PrintAlignmentMessage.right,
 };
 
-QrErrorLevelMessage _toErrorLevel(QrErrorLevel l) => switch (l) {
-  QrErrorLevel.l => QrErrorLevelMessage.l,
-  QrErrorLevel.m => QrErrorLevelMessage.m,
-  QrErrorLevel.q => QrErrorLevelMessage.q,
-  QrErrorLevel.h => QrErrorLevelMessage.h,
+QrErrorLevelMessage _toErrorLevel(SunmiQrErrorLevel l) => switch (l) {
+  SunmiQrErrorLevel.l => QrErrorLevelMessage.l,
+  SunmiQrErrorLevel.m => QrErrorLevelMessage.m,
+  SunmiQrErrorLevel.q => QrErrorLevelMessage.q,
+  SunmiQrErrorLevel.h => QrErrorLevelMessage.h,
 };

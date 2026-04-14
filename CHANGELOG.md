@@ -1,3 +1,8 @@
+## 0.2.0
+
+* Renamed public model classes to `Sunmi`-prefixed names: `SunmiDiscoveredPrinter`, `SunmiPrinterStatus`, `SunmiPrintResult`, `SunmiPrintAlignment`, `SunmiQrErrorLevel`.
+* Expanded README with detailed connection-type documentation (USB, LAN, Bluetooth).
+
 ## 0.1.0
 
 * Initial release of the Sunmi External Cloud Printer plugin.

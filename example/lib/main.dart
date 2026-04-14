@@ -21,7 +21,7 @@ class PrinterPage extends StatefulWidget {
 class _PrinterPageState extends State<PrinterPage> {
   final _printer = SunmiExternalCloudPrinter();
 
-  List<DiscoveredPrinter> _printers = [];
+  List<SunmiDiscoveredPrinter> _printers = [];
   String _log = '';
   bool _loading = false;
 
@@ -44,7 +44,7 @@ class _PrinterPageState extends State<PrinterPage> {
     });
   }
 
-  Future<void> _connect(DiscoveredPrinter p) async {
+  Future<void> _connect(SunmiDiscoveredPrinter p) async {
     _append('Connecting to ${p.name}…');
     final ok = await _printer.connect(p.id);
     _append(ok ? 'Connected.' : 'Connection failed.');
@@ -56,11 +56,11 @@ class _PrinterPageState extends State<PrinterPage> {
     final result = await _printer.commit(
       PrintJob()
         ..initStyle()
-        ..setAlignment(PrintAlignment.center)
+        ..setAlignment(SunmiPrintAlignment.center)
         ..setCharacterSize(2, 2)
         ..appendText('SUNMI CLOUD PRINTER\n')
         ..setCharacterSize(1, 1)
-        ..setAlignment(PrintAlignment.left)
+        ..setAlignment(SunmiPrintAlignment.left)
         ..appendText('Plugin example app\n')
         ..appendText('Printed at: $now\n')
         ..lineFeed(3)

@@ -22,7 +22,7 @@ export 'print_job.dart' show PrintJob;
 ///
 /// final result = await printer.commit(
 ///   PrintJob()
-///     ..setAlignment(PrintAlignment.center)
+///     ..setAlignment(SunmiPrintAlignment.center)
 ///     ..appendText('Hello, Sunmi!\n')
 ///     ..lineFeed(3)
 ///     ..cutPaper(),
@@ -41,7 +41,7 @@ class SunmiExternalCloudPrinter {
   /// Scans for nearby printers for [timeoutSeconds] and returns the results.
   ///
   /// Connection priority when auto-connecting: USB → LAN → Bluetooth.
-  Future<List<DiscoveredPrinter>> scan({int timeoutSeconds = 5}) async {
+  Future<List<SunmiDiscoveredPrinter>> scan({int timeoutSeconds = 5}) async {
     final messages = await _device.scanPrinters(timeoutSeconds);
     return messages.map(_fromMessage).toList();
   }
@@ -58,24 +58,27 @@ class SunmiExternalCloudPrinter {
   Future<void> disconnect() async => _device.disconnect();
 
   /// Returns the current status of the connected printer.
-  Future<PrinterStatus> getStatus() async {
+  Future<SunmiPrinterStatus> getStatus() async {
     final msg = await _device.getStatus();
-    return PrinterStatus(isReady: msg.isReady, description: msg.description);
+    return SunmiPrinterStatus(
+      isReady: msg.isReady,
+      description: msg.description,
+    );
   }
 
   /// Executes all commands in [job] and flushes the buffer to the printer.
   ///
-  /// Returns a [PrintResult] indicating success or failure.
-  Future<PrintResult> commit(PrintJob job) async {
+  /// Returns a [SunmiPrintResult] indicating success or failure.
+  Future<SunmiPrintResult> commit(PrintJob job) async {
     await job.execute(_print);
     final msg = await _print.commit();
-    return PrintResult(success: msg.success, message: msg.message);
+    return SunmiPrintResult(success: msg.success, message: msg.message);
   }
 
   // -------------------------------------------------------------------------
 
-  static DiscoveredPrinter _fromMessage(DiscoveredPrinterMessage m) =>
-      DiscoveredPrinter(
+  static SunmiDiscoveredPrinter _fromMessage(DiscoveredPrinterMessage m) =>
+      SunmiDiscoveredPrinter(
         id: m.id,
         name: m.name,
         connectionType: m.connectionType,

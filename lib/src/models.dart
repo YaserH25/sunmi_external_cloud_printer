@@ -2,8 +2,8 @@
 library;
 
 /// A printer discovered during a scan.
-final class DiscoveredPrinter {
-  const DiscoveredPrinter({
+final class SunmiDiscoveredPrinter {
+  const SunmiDiscoveredPrinter({
     required this.id,
     required this.name,
     required this.connectionType,
@@ -40,12 +40,12 @@ final class DiscoveredPrinter {
 
   @override
   String toString() =>
-      'DiscoveredPrinter(id: $id, name: $name, type: $connectionType)';
+      'SunmiDiscoveredPrinter(id: $id, name: $name, type: $connectionType)';
 }
 
 /// Current status of a connected printer.
-final class PrinterStatus {
-  const PrinterStatus({required this.isReady, required this.description});
+final class SunmiPrinterStatus {
+  const SunmiPrinterStatus({required this.isReady, required this.description});
 
   /// Whether the printer is ready to accept print jobs.
   final bool isReady;
@@ -55,12 +55,12 @@ final class PrinterStatus {
 
   @override
   String toString() =>
-      'PrinterStatus(isReady: $isReady, description: $description)';
+      'SunmiPrinterStatus(isReady: $isReady, description: $description)';
 }
 
 /// Result of a committed print job.
-final class PrintResult {
-  const PrintResult({required this.success, required this.message});
+final class SunmiPrintResult {
+  const SunmiPrintResult({required this.success, required this.message});
 
   /// Whether the job printed successfully.
   final bool success;
@@ -69,11 +69,11 @@ final class PrintResult {
   final String message;
 
   @override
-  String toString() => 'PrintResult(success: $success, message: $message)';
+  String toString() => 'SunmiPrintResult(success: $success, message: $message)';
 }
 
 /// Text alignment choices.
-enum PrintAlignment { left, center, right }
+enum SunmiPrintAlignment { left, center, right }
 
 /// QR code error correction level.
-enum QrErrorLevel { l, m, q, h }
+enum SunmiQrErrorLevel { l, m, q, h }

@@ -27,7 +27,7 @@ A Flutter plugin for Sunmi external cloud printers — **NT21x, NT31x, and NT32x
 
 ```yaml
 dependencies:
-  sunmi_external_cloud_printer: ^0.1.0
+  sunmi_external_cloud_printer: ^0.2.0
 ```
 
 Then run:
@@ -69,11 +69,11 @@ if (!connected) {
 final result = await printer.commit(
   PrintJob()
     ..initStyle()
-    ..setAlignment(PrintAlignment.center)
+    ..setAlignment(SunmiPrintAlignment.center)
     ..setCharacterSize(2, 2)
     ..appendText('RECEIPT\n')
     ..setCharacterSize(1, 1)
-    ..setAlignment(PrintAlignment.left)
+    ..setAlignment(SunmiPrintAlignment.left)
     ..appendText('Item 1 ............... 10.00\n')
     ..appendText('Item 2 ............... 25.00\n')
     ..setBold(enabled: true)
@@ -102,31 +102,59 @@ await printer.disconnect();
 
 A full working example is available in the [`/example`](example) folder.
 
+## Connection types
+
+The plugin supports three physical connection modes. When `scan()` is called, all three are probed simultaneously. Each discovered printer exposes its type via `SunmiDiscoveredPrinter.connectionType` (`"USB"`, `"LAN"`, or `"Bluetooth"`).
+
+### USB
+
+- Plug the printer into the Android device's USB-A or USB-C (OTG) port.
+- No pairing or network configuration is required.
+- `SunmiDiscoveredPrinter.vid` and `.pid` hold the USB vendor ID and product ID respectively (useful for filtering specific hardware).
+- The plugin holds a USB device claim for the duration of the connection; call `disconnect()` to release it before the app goes to the background if you need to share the port.
+- **Priority:** USB connections are preferred when auto-selecting (USB → LAN → Bluetooth).
+
+### LAN (Local Area Network)
+
+- Printer and device must be on the **same Wi-Fi or Ethernet segment**.
+- `SunmiDiscoveredPrinter.address` contains the printer's IPv4 address and `.port` contains the TCP port (default `9100`).
+- Static IP assignment on the printer is recommended for production deployments to avoid address changes between scans.
+- Discovery uses UDP broadcast; ensure the network does not block broadcast traffic between subnets.
+- The connection is a persistent TCP socket; if the socket drops (e.g. DHCP lease renewal), call `disconnect()` then `connect()` again.
+
+### Bluetooth
+
+- Supports Bluetooth Classic (SPP profile). Bluetooth LE is **not** supported.
+- Pair the printer with the Android device via **Settings → Bluetooth** before scanning — the plugin does not handle the pairing handshake.
+- `SunmiDiscoveredPrinter.mac` holds the Bluetooth MAC address (e.g. `"AA:BB:CC:DD:EE:FF"`).
+- Bluetooth range is typically 5–10 m; signal drops will cause the connection to time out. Add retry logic in production apps.
+- Android 12+ requires the `BLUETOOTH_CONNECT` and `BLUETOOTH_SCAN` runtime permissions. Declare and request them in your app before calling `scan()`.
+
 ## API reference
 
 ### `SunmiExternalCloudPrinter`
 
 | Method | Returns | Description |
 |---|---|---|
-| `scan({int timeoutSeconds})` | `Future<List<DiscoveredPrinter>>` | Scans for nearby printers |
+| `scan({int timeoutSeconds})` | `Future<List<SunmiDiscoveredPrinter>>` | Scans for nearby printers |
 | `connect(String id)` | `Future<bool>` | Connects to a printer by ID |
 | `isConnected()` | `Future<bool>` | Whether a printer is currently connected |
 | `disconnect()` | `Future<void>` | Disconnects and releases the connection |
-| `getStatus()` | `Future<PrinterStatus>` | Returns current printer status |
-| `commit(PrintJob job)` | `Future<PrintResult>` | Executes all job commands and flushes to printer |
+| `getStatus()` | `Future<SunmiPrinterStatus>` | Returns current printer status |
+| `commit(PrintJob job)` | `Future<SunmiPrintResult>` | Executes all job commands and flushes to printer |
 
 ### `PrintJob` commands
 
 | Method | Description |
 |---|---|
 | `initStyle()` | Resets all style settings to defaults |
-| `setAlignment(PrintAlignment)` | `left`, `center`, or `right` |
+| `setAlignment(SunmiPrintAlignment)` | `left`, `center`, or `right` |
 | `setCharacterSize(int w, int h)` | Width and height multiplier 1–4 |
 | `setBold({required bool enabled})` | Bold on/off |
 | `appendText(String text)` | Appends text; use `\n` for line breaks |
 | `lineFeed([int lines])` | Feeds blank lines (default 1) |
 | `cutPaper({bool partial})` | Full cut (default) or partial cut |
-| `printQrCode(String data, {int size, QrErrorLevel errorLevel})` | Prints a QR code |
+| `printQrCode(String data, {int size, SunmiQrErrorLevel errorLevel})` | Prints a QR code |
 
 ## Additional information
 
