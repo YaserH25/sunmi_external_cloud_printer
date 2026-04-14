@@ -1,0 +1,27 @@
+name: sunmi_external_cloud_printer
+description: Flutter plugin for Sunmi external cloud printers (NT21x/NT31x/NT32x) via USB, LAN, and Bluetooth. Android only.
+version: 0.1.0
+homepage: https://github.com/YaserH25/sunmi_external_cloud_printer
+repository: https://github.com/YaserH25/sunmi_external_cloud_printer
+issue_tracker: https://github.com/YaserH25/sunmi_external_cloud_printer/issues
+
+environment:
+  sdk: ^3.8.1
+  flutter: '>=3.3.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  plugin_platform_interface: ^2.0.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: com.sunmiplugin.sunmi_external_cloud_printer
+        pluginClass: SunmiExternalCloudPrinterPlugin
