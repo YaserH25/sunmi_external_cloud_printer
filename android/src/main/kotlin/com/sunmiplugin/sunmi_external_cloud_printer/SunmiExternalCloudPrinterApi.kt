@@ -2,6 +2,14 @@ package com.sunmiplugin.sunmi_external_cloud_printer
 
 // Shared data types and handler interfaces for the Sunmi External Cloud Printer plugin.
 
+enum class ImageAlgorithmMessage(val raw: Int) {
+    BINARIZATION(0), DITHERING(1);
+
+    companion object {
+        fun ofRaw(raw: Int): ImageAlgorithmMessage = values().first { it.raw == raw }
+    }
+}
+
 class FlutterError(
     val code: String,
     override val message: String? = null,
@@ -80,6 +88,7 @@ interface SunmiPrintApi {
     fun setCharacterSize(width: Long, height: Long)
     fun setBold(enabled: Boolean)
     fun appendText(text: String)
+    fun appendImage(bytes: ByteArray, algorithm: ImageAlgorithmMessage)
     fun lineFeed(lines: Long)
     fun cutPaper(partial: Boolean)
     fun printQrCode(data: String, size: Long, errorLevel: QrErrorLevelMessage)

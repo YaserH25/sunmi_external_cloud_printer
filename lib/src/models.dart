@@ -75,5 +75,8 @@ final class SunmiPrintResult {
 /// Text alignment choices.
 enum SunmiPrintAlignment { left, center, right }
 
+/// Image rasterization algorithm used by the printer firmware.
+enum SunmiImageAlgorithm { binarization, dithering }
+
 /// QR code error correction level.
 enum SunmiQrErrorLevel { l, m, q, h }

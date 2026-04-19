@@ -1,17 +1,18 @@
 # sunmi_cloud_printer_example
 
-Demonstrates how to use the sunmi_cloud_printer plugin.
+Demonstrates scanning, connecting, plain-text printing, and Arabic-safe image
+printing with the `sunmi_external_cloud_printer` plugin.
 
-## Getting Started
+## Included flows
 
-This project is a starting point for a Flutter application.
+- `Print Test` sends a normal text receipt through `appendText()`.
+- `Print Arabic` renders an Arabic receipt to a PNG in Flutter and prints it
+	through `appendImage()`. Use this path when the printer firmware does not
+	shape Arabic text correctly.
 
-A few resources to get you started if this is your first Flutter project:
+## Getting started
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+1. Connect a supported Sunmi printer.
+2. Tap `Scan`.
+3. Tap a discovered printer to connect.
+4. Use `Print Test` or `Print Arabic`.

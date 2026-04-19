@@ -11,6 +11,7 @@ A Flutter plugin for Sunmi external cloud printers — **NT21x, NT31x, and NT32x
   - Text alignment (left / center / right)
   - Character size multiplier (width × height, 1–4)
   - Bold text
+  - Bitmap/image printing for Arabic-safe output
   - Line feeds
   - Full or partial paper cut
   - QR code printing (size 1–16, four error-correction levels)
@@ -152,9 +153,31 @@ The plugin supports three physical connection modes. When `scan()` is called, al
 | `setCharacterSize(int w, int h)` | Width and height multiplier 1–4 |
 | `setBold({required bool enabled})` | Bold on/off |
 | `appendText(String text)` | Appends text; use `\n` for line breaks |
+| `appendImage(Uint8List bytes, {SunmiImageAlgorithm algorithm})` | Appends a bitmap image from encoded bytes |
 | `lineFeed([int lines])` | Feeds blank lines (default 1) |
 | `cutPaper({bool partial})` | Full cut (default) or partial cut |
 | `printQrCode(String data, {int size, SunmiQrErrorLevel errorLevel})` | Prints a QR code |
+
+## Arabic text
+
+The printer SDK text mode may not shape Arabic correctly. For Arabic receipts,
+render the text in Flutter and send it as an image instead of using
+`appendText()`.
+
+```dart
+final Uint8List arabicReceiptBytes = ...; // PNG/JPG bytes rendered in Flutter
+
+final result = await printer.commit(
+  PrintJob()
+    ..appendImage(arabicReceiptBytes)
+    ..lineFeed(3)
+    ..cutPaper(),
+);
+```
+
+`appendImage()` accepts encoded image bytes that Android can decode, such as
+PNG and JPG. `SunmiImageAlgorithm.binarization` is the default; if your output
+looks harsh on gradients, try `SunmiImageAlgorithm.dithering`.
 
 ## Additional information
 

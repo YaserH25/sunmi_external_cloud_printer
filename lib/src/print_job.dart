@@ -1,5 +1,6 @@
 import 'package:sunmi_external_cloud_printer/src/models.dart';
 import 'package:sunmi_external_cloud_printer/src/sunmi_external_cloud_printer_api.dart';
+import 'dart:typed_data';
 
 /// Builds a buffered sequence of print commands to send in a single
 /// [SunmiExternalCloudPrinter.commit] call.
@@ -47,6 +48,18 @@ final class PrintJob {
   /// Appends [text] to the print buffer. Include `\n` for line breaks.
   PrintJob appendText(String text) {
     _commands.add(_AppendText(text));
+    return this;
+  }
+
+  /// Appends an image to the print buffer.
+  ///
+  /// Pass PNG, JPG, or other Android-decodable image bytes. This is the
+  /// recommended path for Arabic and other scripts that require shaping.
+  PrintJob appendImage(
+    Uint8List bytes, {
+    SunmiImageAlgorithm algorithm = SunmiImageAlgorithm.binarization,
+  }) {
+    _commands.add(_AppendImage(bytes, algorithm));
     return this;
   }
 
@@ -124,6 +137,15 @@ final class _AppendText extends _PrintCommand {
   Future<void> execute(SunmiPrintApi api) => api.appendText(text);
 }
 
+final class _AppendImage extends _PrintCommand {
+  _AppendImage(this.bytes, this.algorithm);
+  final Uint8List bytes;
+  final SunmiImageAlgorithm algorithm;
+  @override
+  Future<void> execute(SunmiPrintApi api) =>
+      api.appendImage(bytes, _toImageAlgorithm(algorithm));
+}
+
 final class _LineFeed extends _PrintCommand {
   _LineFeed(this.lines);
   final int lines;
@@ -156,6 +178,11 @@ PrintAlignmentMessage _toMessage(SunmiPrintAlignment a) => switch (a) {
   SunmiPrintAlignment.left => PrintAlignmentMessage.left,
   SunmiPrintAlignment.center => PrintAlignmentMessage.center,
   SunmiPrintAlignment.right => PrintAlignmentMessage.right,
+};
+
+ImageAlgorithmMessage _toImageAlgorithm(SunmiImageAlgorithm a) => switch (a) {
+  SunmiImageAlgorithm.binarization => ImageAlgorithmMessage.binarization,
+  SunmiImageAlgorithm.dithering => ImageAlgorithmMessage.dithering,
 };
 
 QrErrorLevelMessage _toErrorLevel(SunmiQrErrorLevel l) => switch (l) {

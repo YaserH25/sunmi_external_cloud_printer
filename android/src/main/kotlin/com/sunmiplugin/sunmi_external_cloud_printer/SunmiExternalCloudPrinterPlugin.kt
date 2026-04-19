@@ -1,5 +1,6 @@
 package com.sunmiplugin.sunmi_external_cloud_printer
 
+import android.graphics.BitmapFactory
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
@@ -23,6 +24,7 @@ import com.sunmi.externalprinterlibrary2.printer.CloudPrinterInfo
 import com.sunmi.externalprinterlibrary2.style.AlignStyle
 import com.sunmi.externalprinterlibrary2.style.CloudPrinterStatus
 import com.sunmi.externalprinterlibrary2.style.ErrorLevel
+import com.sunmi.externalprinterlibrary2.style.ImageAlgorithm
 
 /** Flutter plugin entry point for the Sunmi External Cloud Printer SDK. */
 class SunmiExternalCloudPrinterPlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
@@ -117,6 +119,11 @@ class SunmiExternalCloudPrinterPlugin : FlutterPlugin, MethodChannel.MethodCallH
             "appendText" -> {
                 val text = call.argument<String>("text") ?: ""
                 runPrint(result) { print.appendText(text) }
+            }
+            "appendImage" -> {
+                val bytes = call.argument<ByteArray>("bytes") ?: byteArrayOf()
+                val algorithm = ImageAlgorithmMessage.ofRaw(call.argument<Int>("algorithm") ?: 0)
+                runPrint(result) { print.appendImage(bytes, algorithm) }
             }
             "lineFeed" -> {
                 val lines = (call.argument<Int>("lines") ?: 1).toLong()
@@ -338,6 +345,15 @@ internal class SunmiPrintHandler(private val state: SharedPrinterState) : SunmiP
     override fun setBold(enabled: Boolean) = runCmd { it.setBoldMode(enabled) }
 
     override fun appendText(text: String) = runCmd { it.appendText(text) }
+
+    override fun appendImage(bytes: ByteArray, algorithm: ImageAlgorithmMessage) = runCmd { printer ->
+        val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+            ?: throw FlutterError("INVALID_IMAGE", "Image bytes could not be decoded on Android", null)
+        printer.printImage(bitmap, when (algorithm) {
+            ImageAlgorithmMessage.BINARIZATION -> ImageAlgorithm.BINARIZATION
+            ImageAlgorithmMessage.DITHERING -> ImageAlgorithm.DITHERING
+        })
+    }
 
     override fun lineFeed(lines: Long) = runCmd { it.lineFeed(lines.toInt()) }
 

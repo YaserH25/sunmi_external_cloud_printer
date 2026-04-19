@@ -6,6 +6,8 @@ const MethodChannel _channel = MethodChannel(
 
 enum PrintAlignmentMessage { left, center, right }
 
+enum ImageAlgorithmMessage { binarization, dithering }
+
 enum QrErrorLevelMessage { l, m, q, h }
 
 class DiscoveredPrinterMessage {
@@ -126,6 +128,16 @@ class SunmiPrintApi {
 
   Future<void> appendText(String text) async {
     await _channel.invokeMethod('appendText', {'text': text});
+  }
+
+  Future<void> appendImage(
+    Uint8List bytes,
+    ImageAlgorithmMessage algorithm,
+  ) async {
+    await _channel.invokeMethod('appendImage', {
+      'bytes': bytes,
+      'algorithm': algorithm.index,
+    });
   }
 
   Future<void> lineFeed(int lines) async {
