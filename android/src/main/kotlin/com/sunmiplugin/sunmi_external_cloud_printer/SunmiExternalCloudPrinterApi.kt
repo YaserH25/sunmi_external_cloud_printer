@@ -10,6 +10,14 @@ enum class ImageAlgorithmMessage(val raw: Int) {
     }
 }
 
+enum class EncodeTypeMessage(val raw: Int) {
+    ASCII(0), GB18030(1), BIG5(2), SHIFT_JIS(3), JIS_0208(4), KSC_5601(5), UTF_8(6);
+
+    companion object {
+        fun ofRaw(raw: Int): EncodeTypeMessage = values().first { it.raw == raw }
+    }
+}
+
 class FlutterError(
     val code: String,
     override val message: String? = null,
@@ -87,7 +95,11 @@ interface SunmiPrintApi {
     fun setAlignment(alignment: PrintAlignmentMessage)
     fun setCharacterSize(width: Long, height: Long)
     fun setBold(enabled: Boolean)
+    fun setEncodeMode(type: EncodeTypeMessage)
+    fun selectOtherCharFont(select: Int)
+    fun setOtherSize(size: Int)
     fun appendText(text: String)
+    fun appendRawData(data: ByteArray)
     fun appendImage(bytes: ByteArray, algorithm: ImageAlgorithmMessage)
     fun lineFeed(lines: Long)
     fun cutPaper(partial: Boolean)

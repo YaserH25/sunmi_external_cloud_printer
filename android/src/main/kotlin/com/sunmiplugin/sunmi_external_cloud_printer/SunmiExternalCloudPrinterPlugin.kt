@@ -23,6 +23,7 @@ import com.sunmi.externalprinterlibrary2.printer.CloudPrinter
 import com.sunmi.externalprinterlibrary2.printer.CloudPrinterInfo
 import com.sunmi.externalprinterlibrary2.style.AlignStyle
 import com.sunmi.externalprinterlibrary2.style.CloudPrinterStatus
+import com.sunmi.externalprinterlibrary2.style.EncodeType
 import com.sunmi.externalprinterlibrary2.style.ErrorLevel
 import com.sunmi.externalprinterlibrary2.style.ImageAlgorithm
 
@@ -116,9 +117,25 @@ class SunmiExternalCloudPrinterPlugin : FlutterPlugin, MethodChannel.MethodCallH
                 val enabled = call.argument<Boolean>("enabled") ?: false
                 runPrint(result) { print.setBold(enabled) }
             }
+            "setEncodeMode" -> {
+                val type = EncodeTypeMessage.ofRaw(call.argument<Int>("type") ?: 1)
+                runPrint(result) { print.setEncodeMode(type) }
+            }
+            "selectOtherCharFont" -> {
+                val select = call.argument<Int>("select") ?: 0
+                runPrint(result) { print.selectOtherCharFont(select) }
+            }
+            "setOtherSize" -> {
+                val size = call.argument<Int>("size") ?: 24
+                runPrint(result) { print.setOtherSize(size) }
+            }
             "appendText" -> {
                 val text = call.argument<String>("text") ?: ""
                 runPrint(result) { print.appendText(text) }
+            }
+            "appendRawData" -> {
+                val data = call.argument<ByteArray>("data") ?: byteArrayOf()
+                runPrint(result) { print.appendRawData(data) }
             }
             "appendImage" -> {
                 val bytes = call.argument<ByteArray>("bytes") ?: byteArrayOf()
@@ -344,7 +361,25 @@ internal class SunmiPrintHandler(private val state: SharedPrinterState) : SunmiP
 
     override fun setBold(enabled: Boolean) = runCmd { it.setBoldMode(enabled) }
 
+    override fun setEncodeMode(type: EncodeTypeMessage) = runCmd {
+        it.setEncodeMode(when (type) {
+            EncodeTypeMessage.ASCII -> EncodeType.ASCII
+            EncodeTypeMessage.GB18030 -> EncodeType.GB18030
+            EncodeTypeMessage.BIG5 -> EncodeType.BIG5
+            EncodeTypeMessage.SHIFT_JIS -> EncodeType.SHIFT_JIS
+            EncodeTypeMessage.JIS_0208 -> EncodeType.JIS_0208
+            EncodeTypeMessage.KSC_5601 -> EncodeType.KSC_5601
+            EncodeTypeMessage.UTF_8 -> EncodeType.UTF_8
+        })
+    }
+
+    override fun selectOtherCharFont(select: Int) = runCmd { it.selectOtherCharFont(select) }
+
+    override fun setOtherSize(size: Int) = runCmd { it.setOtherSize(size) }
+
     override fun appendText(text: String) = runCmd { it.appendText(text) }
+
+    override fun appendRawData(data: ByteArray) = runCmd { it.appendRawData(data) }
 
     override fun appendImage(bytes: ByteArray, algorithm: ImageAlgorithmMessage) = runCmd { printer ->
         val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)

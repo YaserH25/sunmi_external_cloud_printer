@@ -20,11 +20,31 @@ void main() {
     expect(api.imageBytes, [1, 2, 3]);
     expect(api.imageAlgorithm, ImageAlgorithmMessage.dithering);
   });
+
+  test('experimental Arabic controls forward to print api', () async {
+    final api = _FakePrintApi();
+
+    await PrintJob()
+        .setEncodeMode(SunmiEncodeType.utf8)
+        .selectOtherCharFont(1)
+        .setOtherSize(28)
+        .appendRawData(Uint8List.fromList([0x1B, 0x40]))
+        .execute(api);
+
+    expect(api.encodeType, EncodeTypeMessage.utf8);
+    expect(api.otherCharFont, 1);
+    expect(api.otherSize, 28);
+    expect(api.rawData, [0x1B, 0x40]);
+  });
 }
 
 final class _FakePrintApi extends SunmiPrintApi {
+  EncodeTypeMessage? encodeType;
   Uint8List? imageBytes;
   ImageAlgorithmMessage? imageAlgorithm;
+  int? otherCharFont;
+  int? otherSize;
+  Uint8List? rawData;
 
   @override
   Future<void> appendImage(
@@ -37,6 +57,11 @@ final class _FakePrintApi extends SunmiPrintApi {
 
   @override
   Future<void> appendText(String text) async {}
+
+  @override
+  Future<void> appendRawData(Uint8List data) async {
+    rawData = data;
+  }
 
   @override
   Future<PrintResultMessage> commit() async =>
@@ -52,6 +77,16 @@ final class _FakePrintApi extends SunmiPrintApi {
   Future<void> lineFeed(int lines) async {}
 
   @override
+  Future<void> selectOtherCharFont(int select) async {
+    otherCharFont = select;
+  }
+
+  @override
+  Future<void> setEncodeMode(EncodeTypeMessage type) async {
+    encodeType = type;
+  }
+
+  @override
   Future<void> printQrCode(
     String data,
     int size,
@@ -63,6 +98,11 @@ final class _FakePrintApi extends SunmiPrintApi {
 
   @override
   Future<void> setBold(bool enabled) async {}
+
+  @override
+  Future<void> setOtherSize(int size) async {
+    otherSize = size;
+  }
 
   @override
   Future<void> setCharacterSize(int width, int height) async {}

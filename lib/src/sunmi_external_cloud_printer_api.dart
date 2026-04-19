@@ -8,6 +8,8 @@ enum PrintAlignmentMessage { left, center, right }
 
 enum ImageAlgorithmMessage { binarization, dithering }
 
+enum EncodeTypeMessage { ascii, gb18030, big5, shiftJis, jis0208, ksc5601, utf8 }
+
 enum QrErrorLevelMessage { l, m, q, h }
 
 class DiscoveredPrinterMessage {
@@ -126,8 +128,24 @@ class SunmiPrintApi {
     await _channel.invokeMethod('setBold', {'enabled': enabled});
   }
 
+  Future<void> setEncodeMode(EncodeTypeMessage type) async {
+    await _channel.invokeMethod('setEncodeMode', {'type': type.index});
+  }
+
+  Future<void> selectOtherCharFont(int select) async {
+    await _channel.invokeMethod('selectOtherCharFont', {'select': select});
+  }
+
+  Future<void> setOtherSize(int size) async {
+    await _channel.invokeMethod('setOtherSize', {'size': size});
+  }
+
   Future<void> appendText(String text) async {
     await _channel.invokeMethod('appendText', {'text': text});
+  }
+
+  Future<void> appendRawData(Uint8List data) async {
+    await _channel.invokeMethod('appendRawData', {'data': data});
   }
 
   Future<void> appendImage(

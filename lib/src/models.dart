@@ -78,5 +78,19 @@ enum SunmiPrintAlignment { left, center, right }
 /// Image rasterization algorithm used by the printer firmware.
 enum SunmiImageAlgorithm { binarization, dithering }
 
+/// Text encoding mode used by the printer firmware for text-mode printing.
+///
+/// Experimental: this controls byte decoding only and does not guarantee Arabic
+/// shaping support on the printer.
+enum SunmiEncodeType {
+  ascii,
+  gb18030,
+  big5,
+  shiftJis,
+  jis0208,
+  ksc5601,
+  utf8,
+}
+
 /// QR code error correction level.
 enum SunmiQrErrorLevel { l, m, q, h }

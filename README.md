@@ -28,7 +28,7 @@ A Flutter plugin for Sunmi external cloud printers — **NT21x, NT31x, and NT32x
 
 ```yaml
 dependencies:
-  sunmi_external_cloud_printer: ^0.2.0
+  sunmi_external_cloud_printer: ^0.3.0
 ```
 
 Then run:
@@ -152,7 +152,11 @@ The plugin supports three physical connection modes. When `scan()` is called, al
 | `setAlignment(SunmiPrintAlignment)` | `left`, `center`, or `right` |
 | `setCharacterSize(int w, int h)` | Width and height multiplier 1–4 |
 | `setBold({required bool enabled})` | Bold on/off |
+| `setEncodeMode(SunmiEncodeType)` | Experimental printer text encoding control |
+| `selectOtherCharFont(int select)` | Experimental font selection for non-ASCII/CJK characters |
+| `setOtherSize(int size)` | Experimental size control for other-character vector fonts |
 | `appendText(String text)` | Appends text; use `\n` for line breaks |
+| `appendRawData(Uint8List data)` | Experimental raw printer bytes / ESC-POS pass-through |
 | `appendImage(Uint8List bytes, {SunmiImageAlgorithm algorithm})` | Appends a bitmap image from encoded bytes |
 | `lineFeed([int lines])` | Feeds blank lines (default 1) |
 | `cutPaper({bool partial})` | Full cut (default) or partial cut |
@@ -178,6 +182,32 @@ final result = await printer.commit(
 `appendImage()` accepts encoded image bytes that Android can decode, such as
 PNG and JPG. `SunmiImageAlgorithm.binarization` is the default; if your output
 looks harsh on gradients, try `SunmiImageAlgorithm.dithering`.
+
+## Experimental text-mode controls
+
+The Sunmi SDK exposes text-mode knobs that may help on some firmware, but they
+do not guarantee Arabic shaping or RTL layout. Use them only for device-specific
+testing.
+
+```dart
+final result = await printer.commit(
+  PrintJob()
+    ..initStyle()
+    ..setEncodeMode(SunmiEncodeType.utf8)
+    ..selectOtherCharFont(1)
+    ..setOtherSize(28)
+    ..appendText('مرحبا\n')
+    ..lineFeed(3)
+    ..cutPaper(),
+);
+```
+
+Notes:
+
+- `SunmiEncodeType.utf8` only changes byte decoding in the printer pipeline.
+- `selectOtherCharFont()` depends on printer firmware and any preloaded fonts.
+- `appendRawData()` is intended for controlled ESC/POS experiments.
+- If Arabic still prints as disconnected or garbled glyphs, use `appendImage()` instead.
 
 ## Additional information
 

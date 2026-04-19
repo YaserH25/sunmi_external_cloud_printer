@@ -1,3 +1,10 @@
+## 0.3.0
+
+* Added bitmap/image printing support via `PrintJob.appendImage(...)`.
+* Added `SunmiImageAlgorithm` to control printer image rasterization.
+* Added Arabic-safe printing guidance and example flow by rendering receipts as images in Flutter.
+* Added experimental text-mode controls for `setEncodeMode`, `selectOtherCharFont`, `setOtherSize`, and `appendRawData`.
+
 ## 0.2.0
 
 * Renamed public model classes to `Sunmi`-prefixed names: `SunmiDiscoveredPrinter`, `SunmiPrinterStatus`, `SunmiPrintResult`, `SunmiPrintAlignment`, `SunmiQrErrorLevel`.
