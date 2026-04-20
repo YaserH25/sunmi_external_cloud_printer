@@ -133,6 +133,14 @@ class SunmiExternalCloudPrinterPlugin : FlutterPlugin, MethodChannel.MethodCallH
                 val text = call.argument<String>("text") ?: ""
                 runPrint(result) { print.appendText(text) }
             }
+            "printColumnsText" -> {
+                val texts = call.argument<List<String>>("texts") ?: emptyList()
+                val widths = call.argument<List<Int>>("widths") ?: emptyList()
+                val alignments = call.argument<List<Int>>("alignments")
+                    ?.map(PrintAlignmentMessage::ofRaw)
+                    ?: emptyList()
+                runPrint(result) { print.printColumnsText(texts, widths, alignments) }
+            }
             "appendRawData" -> {
                 val data = call.argument<ByteArray>("data") ?: byteArrayOf()
                 runPrint(result) { print.appendRawData(data) }
@@ -378,6 +386,37 @@ internal class SunmiPrintHandler(private val state: SharedPrinterState) : SunmiP
     override fun setOtherSize(size: Int) = runCmd { it.setOtherSize(size) }
 
     override fun appendText(text: String) = runCmd { it.appendText(text) }
+
+    override fun printColumnsText(
+        texts: List<String>,
+        widths: List<Int>,
+        alignments: List<PrintAlignmentMessage>,
+    ) = runCmd {
+        if (texts.isEmpty()) {
+            throw FlutterError("INVALID_ARGUMENT", "texts must not be empty", null)
+        }
+        if (texts.size != widths.size || texts.size != alignments.size) {
+            throw FlutterError(
+                "INVALID_ARGUMENT",
+                "texts, widths, and alignments must have the same length",
+                null,
+            )
+        }
+        if (widths.any { it <= 0 }) {
+            throw FlutterError("INVALID_ARGUMENT", "widths must contain only positive values", null)
+        }
+        it.printColumnsText(
+            texts.toTypedArray(),
+            widths.toIntArray(),
+            alignments.map { alignment ->
+                when (alignment) {
+                    PrintAlignmentMessage.LEFT -> AlignStyle.LEFT
+                    PrintAlignmentMessage.CENTER -> AlignStyle.CENTER
+                    PrintAlignmentMessage.RIGHT -> AlignStyle.RIGHT
+                }
+            }.toTypedArray(),
+        )
+    }
 
     override fun appendRawData(data: ByteArray) = runCmd { it.appendRawData(data) }
 

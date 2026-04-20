@@ -9,13 +9,36 @@ import 'package:sunmi_external_cloud_printer/sunmi_external_cloud_printer.dart';
 import 'package:sunmi_external_cloud_printer/src/sunmi_external_cloud_printer_api.dart';
 
 void main() {
+  test(
+    'printColumnsText forwards texts widths and alignments to print api',
+    () async {
+      final api = _FakePrintApi();
+
+      await PrintJob()
+          .printColumnsText(['Total', '35.00'], [12, 12], [
+            SunmiPrintAlignment.left,
+            SunmiPrintAlignment.right,
+          ])
+          .execute(api);
+
+      expect(api.columnTexts, ['Total', '35.00']);
+      expect(api.columnWidths, [12, 12]);
+      expect(api.columnAlignments, [
+        PrintAlignmentMessage.left,
+        PrintAlignmentMessage.right,
+      ]);
+    },
+  );
+
   test('appendImage forwards bytes and algorithm to print api', () async {
     final api = _FakePrintApi();
 
-    await PrintJob().appendImage(
-      Uint8List.fromList([1, 2, 3]),
-      algorithm: SunmiImageAlgorithm.dithering,
-    ).execute(api);
+    await PrintJob()
+        .appendImage(
+          Uint8List.fromList([1, 2, 3]),
+          algorithm: SunmiImageAlgorithm.dithering,
+        )
+        .execute(api);
 
     expect(api.imageBytes, [1, 2, 3]);
     expect(api.imageAlgorithm, ImageAlgorithmMessage.dithering);
@@ -39,6 +62,9 @@ void main() {
 }
 
 final class _FakePrintApi extends SunmiPrintApi {
+  List<PrintAlignmentMessage>? columnAlignments;
+  List<String>? columnTexts;
+  List<int>? columnWidths;
   EncodeTypeMessage? encodeType;
   Uint8List? imageBytes;
   ImageAlgorithmMessage? imageAlgorithm;
@@ -57,6 +83,17 @@ final class _FakePrintApi extends SunmiPrintApi {
 
   @override
   Future<void> appendText(String text) async {}
+
+  @override
+  Future<void> printColumnsText(
+    List<String> texts,
+    List<int> widths,
+    List<PrintAlignmentMessage> alignments,
+  ) async {
+    columnTexts = texts;
+    columnWidths = widths;
+    columnAlignments = alignments;
+  }
 
   @override
   Future<void> appendRawData(Uint8List data) async {

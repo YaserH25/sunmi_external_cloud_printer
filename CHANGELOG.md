@@ -1,3 +1,10 @@
+## 0.4.0
+
+* Added `PrintJob.printColumnsText(...)` for fixed-width multi-column receipt rows.
+* Added native Android method-channel support for Sunmi SDK `printColumnsText(...)`.
+* Added argument validation for column text, width, and alignment payloads.
+* Expanded README usage examples for left-label/right-value printing.
+
 ## 0.3.0
 
 * Added bitmap/image printing support via `PrintJob.appendImage(...)`.

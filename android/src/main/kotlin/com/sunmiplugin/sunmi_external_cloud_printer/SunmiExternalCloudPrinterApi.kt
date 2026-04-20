@@ -99,6 +99,7 @@ interface SunmiPrintApi {
     fun selectOtherCharFont(select: Int)
     fun setOtherSize(size: Int)
     fun appendText(text: String)
+    fun printColumnsText(texts: List<String>, widths: List<Int>, alignments: List<PrintAlignmentMessage>)
     fun appendRawData(data: ByteArray)
     fun appendImage(bytes: ByteArray, algorithm: ImageAlgorithmMessage)
     fun lineFeed(lines: Long)

@@ -11,6 +11,7 @@ A Flutter plugin for Sunmi external cloud printers — **NT21x, NT31x, and NT32x
   - Text alignment (left / center / right)
   - Character size multiplier (width × height, 1–4)
   - Bold text
+  - Fixed-width column rows for label/value printing
   - Bitmap/image printing for Arabic-safe output
   - Line feeds
   - Full or partial paper cut
@@ -28,7 +29,7 @@ A Flutter plugin for Sunmi external cloud printers — **NT21x, NT31x, and NT32x
 
 ```yaml
 dependencies:
-  sunmi_external_cloud_printer: ^0.3.0
+  sunmi_external_cloud_printer: ^0.4.0
 ```
 
 Then run:
@@ -91,6 +92,31 @@ if (result.success) {
   print('Error: ${result.message}');
 }
 ```
+
+### 3.1 — Print label/value on one line
+
+```dart
+final result = await printer.commit(
+  PrintJob()
+    ..initStyle()
+    ..printColumnsText(
+      ['Total', '35.00'],
+      [12, 12],
+      [SunmiPrintAlignment.left, SunmiPrintAlignment.right],
+    )
+    ..printColumnsText(
+      ['Tax', '5.00'],
+      [12, 12],
+      [SunmiPrintAlignment.left, SunmiPrintAlignment.right],
+    )
+    ..lineFeed(2)
+    ..cutPaper(),
+);
+```
+
+Use `printColumnsText()` when the label should start at the left edge and the
+value should end at the right edge of the same row. The three lists must have
+the same length, and each width must be a positive character width.
 
 ### 4 — Check status and disconnect
 
@@ -156,6 +182,7 @@ The plugin supports three physical connection modes. When `scan()` is called, al
 | `selectOtherCharFont(int select)` | Experimental font selection for non-ASCII/CJK characters |
 | `setOtherSize(int size)` | Experimental size control for other-character vector fonts |
 | `appendText(String text)` | Appends text; use `\n` for line breaks |
+| `printColumnsText(List<String> texts, List<int> widths, List<SunmiPrintAlignment> alignments)` | Prints one row using fixed-width columns |
 | `appendRawData(Uint8List data)` | Experimental raw printer bytes / ESC-POS pass-through |
 | `appendImage(Uint8List bytes, {SunmiImageAlgorithm algorithm})` | Appends a bitmap image from encoded bytes |
 | `lineFeed([int lines])` | Feeds blank lines (default 1) |

@@ -8,7 +8,15 @@ enum PrintAlignmentMessage { left, center, right }
 
 enum ImageAlgorithmMessage { binarization, dithering }
 
-enum EncodeTypeMessage { ascii, gb18030, big5, shiftJis, jis0208, ksc5601, utf8 }
+enum EncodeTypeMessage {
+  ascii,
+  gb18030,
+  big5,
+  shiftJis,
+  jis0208,
+  ksc5601,
+  utf8,
+}
 
 enum QrErrorLevelMessage { l, m, q, h }
 
@@ -142,6 +150,34 @@ class SunmiPrintApi {
 
   Future<void> appendText(String text) async {
     await _channel.invokeMethod('appendText', {'text': text});
+  }
+
+  Future<void> printColumnsText(
+    List<String> texts,
+    List<int> widths,
+    List<PrintAlignmentMessage> alignments,
+  ) async {
+    if (texts.isEmpty) {
+      throw ArgumentError.value(texts, 'texts', 'Must not be empty');
+    }
+    if (texts.length != widths.length || texts.length != alignments.length) {
+      throw ArgumentError(
+        'texts, widths, and alignments must have the same length',
+      );
+    }
+    if (widths.any((width) => width <= 0)) {
+      throw ArgumentError.value(
+        widths,
+        'widths',
+        'Must contain only positive values',
+      );
+    }
+
+    await _channel.invokeMethod('printColumnsText', {
+      'texts': texts,
+      'widths': widths,
+      'alignments': alignments.map((alignment) => alignment.index).toList(),
+    });
   }
 
   Future<void> appendRawData(Uint8List data) async {

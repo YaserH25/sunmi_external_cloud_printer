@@ -77,6 +77,19 @@ final class PrintJob {
     return this;
   }
 
+  /// Prints a single row using fixed-width columns.
+  ///
+  /// This is the preferred API for receipt-style label/value lines where the
+  /// first column is left-aligned and the last column is right-aligned.
+  PrintJob printColumnsText(
+    List<String> texts,
+    List<int> widths,
+    List<SunmiPrintAlignment> alignments,
+  ) {
+    _commands.add(_PrintColumnsText(texts, widths, alignments));
+    return this;
+  }
+
   /// Appends raw printer bytes directly to the print buffer.
   ///
   /// Experimental: use only if you know the target printer's ESC/POS behavior.
@@ -168,7 +181,8 @@ final class _SetEncodeMode extends _PrintCommand {
   _SetEncodeMode(this.type);
   final SunmiEncodeType type;
   @override
-  Future<void> execute(SunmiPrintApi api) => api.setEncodeMode(_toEncodeType(type));
+  Future<void> execute(SunmiPrintApi api) =>
+      api.setEncodeMode(_toEncodeType(type));
 }
 
 final class _SelectOtherCharFont extends _PrintCommand {
@@ -190,6 +204,16 @@ final class _AppendText extends _PrintCommand {
   final String text;
   @override
   Future<void> execute(SunmiPrintApi api) => api.appendText(text);
+}
+
+final class _PrintColumnsText extends _PrintCommand {
+  _PrintColumnsText(this.texts, this.widths, this.alignments);
+  final List<String> texts;
+  final List<int> widths;
+  final List<SunmiPrintAlignment> alignments;
+  @override
+  Future<void> execute(SunmiPrintApi api) =>
+      api.printColumnsText(texts, widths, alignments.map(_toMessage).toList());
 }
 
 final class _AppendRawData extends _PrintCommand {
